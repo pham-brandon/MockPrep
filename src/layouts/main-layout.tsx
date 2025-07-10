@@ -2,12 +2,13 @@ import { Container } from "lucide-react"
 import { Outlet } from "react-router-dom"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
-
+import AuthHandler from "@/handlers/auth-handler"
 
 export const MainLayout = () => {
     return (
         <div className="flex flex-col h-screen">
-            
+            {/* handler that stores user data */}
+            <AuthHandler />
             <Header />
 
 
