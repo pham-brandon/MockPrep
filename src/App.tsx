@@ -6,6 +6,8 @@ import { SignInPg } from './routes/sign-in'
 import { SignUpPg } from './routes/sign-up'
 import ProtectedRoutes from './layouts/protected-routes'
 import { MainLayout } from '@/layouts/main-layout';
+import { Practice } from './components/practice'
+import { Dashboard } from './routes/dashboard'
 
 const App = () => {
   return (
@@ -26,7 +28,11 @@ const App = () => {
         <Route element={<ProtectedRoutes><MainLayout /></ProtectedRoutes>}>
         
         {/*all protected routes */}
-
+        <Route path="/practice" element={<Practice />}>
+        
+          <Route index element={<Dashboard />} />
+        
+        </Route>
 
         </Route>
         

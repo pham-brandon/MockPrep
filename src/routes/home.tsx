@@ -38,7 +38,7 @@ const Home = () => {
             <h2 className="text-blue-700 font-bold">Practice Makes Perfect!</h2>
             <p className="text-sm text-blue-600 font-semibold">
             MockPrep empowers you to unlock your full potential and confidently ace every interview with the help of AI-driven guidance and support.
-            </p>
+            </p> 
 
             <Button className="mt-3 bg-blue-600 hover:bg-blue-700 text-white">
               Practice <Sparkles className="ml-2 w-4 h-4 text-blue-200" />
