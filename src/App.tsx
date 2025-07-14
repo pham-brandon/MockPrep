@@ -8,6 +8,7 @@ import ProtectedRoutes from './layouts/protected-routes'
 import { MainLayout } from '@/layouts/main-layout';
 import { Practice } from './components/practice'
 import { Dashboard } from './routes/dashboard'
+import { CreateEditPg } from './routes/create-edit-pg'
 
 const App = () => {
   return (
@@ -31,7 +32,7 @@ const App = () => {
         <Route path="/practice" element={<Practice />}>
         
           <Route index element={<Dashboard />} />
-        
+          <Route path=":interviewId" element={<CreateEditPg />}/>
         </Route>
 
         </Route>
