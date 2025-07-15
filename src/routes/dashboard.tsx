@@ -1,10 +1,51 @@
 import { Headings } from "@/components/headings"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import { Skeleton } from "@/components/ui/skeleton"
+import { db } from "@/config/firebase.config"
+import type { Interview } from "@/types"
+import { useAuth } from "@clerk/clerk-react"
+import { collection, onSnapshot, query, where } from "firebase/firestore"
 import { Plus } from "lucide-react"
+import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
+import { toast } from "sonner"
 
 export const Dashboard = () => {
+  
+  const [loading, setLoading] = useState(false)
+  const {userId} = useAuth()
+  const [interviews, setInterviews] = useState<Interview[]>([]);
+
+  useEffect(() => {
+    setLoading(true)
+    const interviewQuery = query(
+      collection(db, "interviews"),
+      where("userId", "==", userId))
+
+      const unsubscibe = onSnapshot(interviewQuery, (snapshot) => {
+        const interviewList : Interview[] = snapshot.docs.map(doc => {
+          const id = doc.id
+          return {
+            id,
+            ...doc.data()
+          }
+        }) as Interview[]
+        setInterviews(interviewList)
+        setLoading(false)
+      }, (error)=>{
+        console.log("Error fetching : ", error)
+        toast.error("Error...",{
+          description: "Try again later..."
+        })
+      }) 
+      
+      return () => unsubscibe()
+
+  }, [userId])
+
+
+
   return (
     <>
     <div className="w-full p-8">
@@ -23,6 +64,43 @@ export const Dashboard = () => {
         
     </div>
     <Separator className="my-8" />
+
+    <div className="md:grid md:grid-cols-3 gap-3 py-4">
+      {loading ? (
+        Array.from({ length: 6 }).map((_, index) => (
+          <Skeleton key={index} className="md:h-32 h-24 rounded-md" />
+        ))
+      ) : interviews.length > 0 ? (
+        interviews.map((interview) => (
+          <p key={interview.id}>{interview.position}</p>
+        ))
+      ) : (
+        <div className="md:col-span-3 w-full flex flex-grow items-center justify-center h-96 flex-col">
+        <img
+          src="/assets/images/no-data.png"
+          className="w-44 h-44 object-contain"
+          alt=""
+        />
+
+        <h2 className="text-lg font-semibold text-muted-foreground">
+          No Data Found
+        </h2>
+
+        <p className="w-full md:w-96 text-center text-sm text-neutral-400 mt-4">
+          There is no available data to show. Please add some new mock
+          interviews
+        </p>
+
+        <Link to={"/generate/create"} className="mt-4">
+          <Button size={"sm"}>
+            <Plus className="min-w-5 min-h-5 mr-1" />
+            Add New
+          </Button>
+        </Link>
+      </div>
+      )}
+    </div>
+
     </>
   )
 }
