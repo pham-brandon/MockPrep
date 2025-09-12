@@ -1,13 +1,10 @@
 import { cn } from "@/lib/utils"
-import { useAuth } from "@clerk/clerk-react"
 import { LogoContainer } from "./logo-container"
-import { NavLink } from "react-router-dom"
 import ProfileContainer from "./profile-container"
 import { ToggleContainer } from "./toggle-container"
-import { Button } from "./ui/button"
 
 const Header = () => {
-  const {userId} = useAuth()
+  
 
   return (
     <header 
@@ -22,15 +19,7 @@ const Header = () => {
             {/* Empty flex-1 to push content to the right */}
           </div>
           
-          <div className="flex items-center gap-7">
-            {userId && (
-              <Button asChild variant="outline" className="hidden sm:flex">
-                <NavLink to={"/practice"}>
-                  Start Mock Interview
-                </NavLink>
-              </Button>
-            )}
-            
+          <div className="flex items-center gap-4">
             {/* profile */}
             <ProfileContainer />
             
