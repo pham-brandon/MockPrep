@@ -24,7 +24,7 @@ interface TooltipButtonProps {
   buttonVariant?: ButtonVariant;
   buttonClassName?: string;
   delay?: number;
-  disbaled?: boolean;
+  disabled?: boolean;
   loading?: boolean;
 }
 
@@ -35,7 +35,7 @@ export const TooltipButton = ({
   buttonVariant = "ghost",
   buttonClassName = "",
   delay = 0,
-  disbaled = false,
+  disabled = false,
   loading = false,
 }: TooltipButtonProps) => {
   return (
@@ -44,7 +44,7 @@ export const TooltipButton = ({
         <TooltipTrigger asChild>
           <Button
             size={"icon"}
-            disabled={disbaled}
+            disabled={disabled}
             variant={buttonVariant}
             className={buttonClassName}
             onClick={onClick}

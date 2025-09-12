@@ -20,7 +20,7 @@ export const InterviewCard = ({ interview, onMockPage = false }: InterviewCardPr
       <CardTitle className="text-lg">{interview?.position}</CardTitle>
       <CardDescription>{interview?.description}</CardDescription>
       <div className="flex items-center gap-2 flex-wrap w-full">
-        {interview.techStack && interview.techStack.split(",").map((word, index) => (
+        {interview?.techStack && interview?.techStack.split(",").map((word, index) => (
           <Badge className="hover:border-blue-400 hover:bg-blue-50 hover:text-blue-900 
           text-xs text-muted-foreground" variant={"outline"} key={index}>
             {word.trim()}
@@ -29,8 +29,8 @@ export const InterviewCard = ({ interview, onMockPage = false }: InterviewCardPr
       </div>
              <CardFooter className={cn("flex w-full items-center p-0", onMockPage ? "justify-end" : "justify-between")}>
          <p className="whitespace-nowrap text-[12px] text-muted-foreground truncate">
-           {`${new Date(interview.createdAt.toDate()).toLocaleDateString("en-US", {dateStyle: "long"})} - 
-           ${new Date(interview.createdAt.toDate()).toLocaleTimeString("en-US", {timeStyle: "short"})}`}
+           {`${new Date(interview?.createdAt.toDate()).toLocaleDateString("en-US", {dateStyle: "long"})} - 
+           ${new Date(interview?.createdAt.toDate()).toLocaleTimeString("en-US", {timeStyle: "short"})}`}
          </p>
          {!onMockPage && (
           <div className="items-center flex justify-center gap-4">

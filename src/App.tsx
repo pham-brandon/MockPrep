@@ -9,6 +9,8 @@ import { MainLayout } from '@/layouts/main-layout';
 import { Practice } from './components/practice'
 import { Dashboard } from './routes/dashboard'
 import { CreateEditPg } from './routes/create-edit-pg'
+import { PreInterviewPg } from './routes/pre-interview-pg'
+import { MockInterviewPg } from './routes/mock-interview-pg'
 
 const App = () => {
   return (
@@ -33,6 +35,8 @@ const App = () => {
         
           <Route index element={<Dashboard />} />
           <Route path=":interviewId" element={<CreateEditPg />}/>
+          <Route path="interview/:interviewId" element={<PreInterviewPg />}/>
+          <Route path="interview/:interviewId/start" element={<MockInterviewPg />}/>
         </Route>
 
         </Route>
