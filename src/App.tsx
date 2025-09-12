@@ -11,6 +11,7 @@ import { Dashboard } from './routes/dashboard'
 import { CreateEditPg } from './routes/create-edit-pg'
 import { PreInterviewPg } from './routes/pre-interview-pg'
 import { MockInterviewPg } from './routes/mock-interview-pg'
+import { EvaluationPg } from './routes/evaluation-pg'
 
 const App = () => {
   return (
@@ -37,6 +38,7 @@ const App = () => {
           <Route path=":interviewId" element={<CreateEditPg />}/>
           <Route path="interview/:interviewId" element={<PreInterviewPg />}/>
           <Route path="interview/:interviewId/start" element={<MockInterviewPg />}/>
+          <Route path="evaluation/:interviewId" element={<EvaluationPg />}/>
         </Route>
 
         </Route>

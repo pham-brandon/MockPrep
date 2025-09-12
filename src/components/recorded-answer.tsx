@@ -36,7 +36,7 @@ interface RecordedAnswerProps {
 
 interface AIResponse {
   ratings: number;
-  feedback: string;
+  evaluation: string;
 }
 
 export const RecordedAnswer = ({
@@ -78,7 +78,7 @@ export const RecordedAnswer = ({
         return;
       }
 
-      // Generate AI feedback comparing user's answer to the correct answer
+      // Generate AI evaluation comparing user's answer to the correct answer
       const aiResult = await generateResult(
         question.question,
         question.answer,
@@ -113,7 +113,7 @@ export const RecordedAnswer = ({
     qstAns: string,
     userAns: string
   ): Promise<AIResponse> => {
-    // Generate AI feedback for the user's interview answer
+    // Generate AI evaluation for the user's interview answer
     setIsAiGenerating(true);
     
     // Create prompt for AI to compare user answer with correct answer
@@ -121,15 +121,15 @@ export const RecordedAnswer = ({
       Question: "${qst}"
       User Answer: "${userAns}"
       Correct Answer: "${qstAns}"
-      Please compare the user's answer to the correct answer, and provide a rating (from 1 to 10) based on answer quality, and offer feedback for improvement.
-      Return the result in JSON format with the fields "ratings" (number) and "feedback" (string).
+      Please compare the user's answer to the correct answer, and provide a rating (from 1 to 10) based on answer quality, and offer evaluation for improvement.
+      Return the result in JSON format with the fields "ratings" (number) and "evaluation" (string).
     `;
 
     try {
       // Send prompt to AI and get response
       const aiResult = await chatSession.sendMessage(prompt);
 
-      // Parse the AI response and return structured feedback
+      // Parse the AI response and return structured evaluation
       const parsedResult: AIResponse = cleanJsonResponse(
         aiResult.response.text()
       );
@@ -137,10 +137,10 @@ export const RecordedAnswer = ({
     } catch (error) {
       console.log(error);
       toast("Error", {
-        description: "An error occurred while generating feedback.",
+        description: "An error occurred while generating evaluation.",
       });
       // Return default response if AI fails
-      return { ratings: 0, feedback: "Unable to generate feedback" };
+      return { ratings: 0, evaluation: "Unable to generate evaluation" };
     } finally {
       setIsAiGenerating(false);
     }
@@ -154,7 +154,7 @@ export const RecordedAnswer = ({
   };
 
   const saveUserAnswer = async () => {
-    // Save the user's answer and AI feedback to Firebase
+    // Save the user's answer and AI evaluation to Firebase
     setLoading(true);
 
     if (!aiResult) {
@@ -180,13 +180,13 @@ export const RecordedAnswer = ({
         });
         return;
       } else {
-        // Save the user's answer with AI feedback to Firebase
+        // Save the user's answer with AI evaluation to Firebase
         await addDoc(collection(db, "userAnswers"), {
           mockIdRef: interviewId,
           question: question.question,
           correct_ans: question.answer,
           user_ans: userAnswer,
-          feedback: aiResult.feedback,
+          evaluation: aiResult.evaluation,
           rating: aiResult.ratings,
           userId,
           createdAt: serverTimestamp(),
@@ -277,7 +277,7 @@ export const RecordedAnswer = ({
           onClick={recordedNewAnswer}
         />
 
-        {/* Save result button (disabled until AI feedback is generated) */}
+        {/* Save result button (disabled until AI evaluation is generated) */}
         <TooltipButton
           content="Save Result"
           icon={
