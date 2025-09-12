@@ -1,7 +1,7 @@
 import { db } from '@/config/firebase.config';
 import type { Interview } from '@/types';
 import { doc, getDoc } from 'firebase/firestore';
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { LoaderPg } from './loader-pg';
 import { BreadCrumbCustom } from '@/components/breadcrumb-custom';
@@ -9,13 +9,13 @@ import { Lightbulb, Sparkles, WebcamIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { InterviewCard } from '@/components/interview-card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Webcam } from 'react-webcam';
+import Webcam from 'react-webcam';
 
 export const PreInterviewPg = () => {
 
     const { interviewId } = useParams<{ interviewId: string }>();
     const [interview, setInterview] = useState<Interview | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading] = useState(false);
     const [isWebCamEnabled, setIsWebCamEnabled] = useState(false);
     const navigate = useNavigate();
 

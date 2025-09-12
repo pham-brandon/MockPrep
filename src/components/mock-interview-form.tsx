@@ -83,7 +83,7 @@ export const MockInterviewForm = ({initialData} : MockInterviewFormProps) => {
         }
       }
 
-    const generateAiResponse = async (data: FormData) => {
+    const generateAiResponse = async (data: z.infer<typeof formSchema>) => {
         const prompt = `
             As an expert prompt engineer, generate a JSON array of 5 technical interview questions, each paired with a detailed, high-quality answer, tailored to the following job information. Each array element must be an object with the fields "question" and "answer", formatted exactly as:
     
@@ -93,15 +93,15 @@ export const MockInterviewForm = ({initialData} : MockInterviewFormProps) => {
             ]
     
             Job Information:
-            - Job Position: ${data?.position}
-            - Job Description: ${data?.description}
-            - Years of Experience Required: ${data?.experience}
-            - Tech Stacks: ${data?.techStack}
+            - Job Position: ${data.position}
+            - Job Description: ${data.description}
+            - Years of Experience Required: ${data.experience}
+            - Tech Stacks: ${data.techStack}
     
             Requirements:
             - Questions must be highly relevant to the job description and tech stack, assessing both practical and theoretical knowledge.
-            - Cover a mix of fundamental concepts, real-world problem-solving, best practices, and handling complex or ambiguous requirements in ${data?.techStack}.
-            - Answers should be clear, technically accurate, and demonstrate depth appropriate for a candidate with ${data?.experience} years of experience.
+            - Cover a mix of fundamental concepts, real-world problem-solving, best practices, and handling complex or ambiguous requirements in ${data.techStack}.
+            - Answers should be clear, technically accurate, and demonstrate depth appropriate for a candidate with ${data.experience} years of experience.
             - Do not include any introductory text, explanations, code blocks, or labels—output only the raw JSON array as specified.
             `;
     

@@ -13,7 +13,6 @@ const Modal: React.FC<ModalProps> = ({
   title,
   description,
   isOpen,
-  onClose,
   children,
 }) => {
   if (!isOpen) return null;

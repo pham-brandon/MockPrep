@@ -1,5 +1,4 @@
 import type { Interview } from "@/types"
-import { useAuth } from "@clerk/clerk-react"
 import { useNavigate } from "react-router-dom"
 
 import { Card, CardDescription, CardFooter, CardTitle } from "@/components/ui/card"
@@ -40,7 +39,7 @@ export const InterviewCard = ({ interview, onMockPage = false }: InterviewCardPr
               onClick={() => {
                 navigate(`/practice/${interview?.id}`, { replace: true });
               }}
-              disbaled={false}
+              disabled={false}
               buttonClassName="hover:text-blue-500"
               icon={<SquarePen />}
               loading={false}
@@ -52,7 +51,7 @@ export const InterviewCard = ({ interview, onMockPage = false }: InterviewCardPr
               onClick={() => {
                 navigate(`/practice/evaluation/${interview?.id}`, { replace: true });
               }}
-              disbaled={false}
+              disabled={false}
               buttonClassName="hover:text-blue-500"
               icon={<MessageSquareMore />}
               loading={false}
@@ -64,7 +63,7 @@ export const InterviewCard = ({ interview, onMockPage = false }: InterviewCardPr
               onClick={() => {
                 navigate(`/practice/interview/${interview?.id}`, { replace: true });
               }}
-              disbaled={false}
+              disabled={false}
               buttonClassName="hover:text-blue-500"
               icon={<Sparkles />}
               loading={false}

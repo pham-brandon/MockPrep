@@ -1,101 +1,69 @@
-# MockPrep
+# React + TypeScript + Vite
 
-A web app for practicing interviews with AI assistance. Built to help developers prepare for real-world interviews in a low-pressure environment.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## What's Inside
+Currently, two official plugins are available:
 
-- AI-powered mock interviews with realistic questions
-- Practice with common interview problems
-- Have your answers evaluated by AI
-- Works on all devices
-- Secure login with Clerk
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## Built With
+## Expanding the ESLint configuration
 
-- Frontend: React 18, TypeScript, Vite
-- Styling: Shadcn UI, Tailwind CSS
-- State: React Query
-- Auth: Clerk
-- Backend: Firebase (Firestore, Storage, Functions)
-- Hosting: Firebase
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-## Getting Started
+```js
+export default tseslint.config([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
 
-### What You'll Need
+      // Remove tseslint.configs.recommended and replace with this
+      ...tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      ...tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      ...tseslint.configs.stylisticTypeChecked,
 
-- Node.js (v18+)
-- pnpm (or npm)
-- Firebase CLI (for deploying)
-- A Firebase project with Firestore and Storage set up
-
-### Quick Start
-
-1. Clone the repo:
-   ```bash
-   git clone https://github.com/pham-brandon/MockPrep.git
-   cd MockPrep
-   ```
-
-2. Install packages:
-   ```bash
-   pnpm install
-   # or
-   npm install
-   ```
-
-3. Set up your `.env` file with these variables:
-   ```
-   VITE_FIREBASE_API_KEY=your_key_here
-   VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
-   VITE_FIREBASE_PROJECT_ID=your_project_id
-   VITE_FIREBASE_STORAGE_BUCKET=your_bucket
-   VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-   VITE_FIREBASE_APP_ID=your_app_id
-   VITE_CLERK_PUBLISHABLE_KEY=your_clerk_key
-   ```
-
-## Running Locally
-
-Start the dev server:
-```bash
-pnpm dev
-# or
-npm run dev
-```
-Then open http://localhost:5173 in your browser.
-
-## Building for Production
-
-```bash
-pnpm build
-# or
-npm run build
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
 
-## Deploying
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-1. Build the app:
-   ```bash
-   pnpm build
-   ```
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
 
-2. Deploy to Firebase:
-   ```bash
-   firebase login
-   firebase deploy --only hosting
-   ```
-
-## Project Structure
-
-```
-src/
-├── components/  # Reusable UI bits
-├── config/     # App config
-├── handlers/   # API stuff
-├── hooks/      # Custom hooks
-├── layouts/    # Page layouts
-├── lib/        # Helper functions
-├── routes/     # Page components
-├── types/      # TypeScript types
-└── App.tsx     # Main app file
+export default tseslint.config([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
