@@ -182,7 +182,7 @@ const Home = () => {
               </h1>
               
               <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-8">
-                Practice with an AI interviewer, get instant feedback, and land your dream job with confidence.
+                Practice with an AI interviewer, get instant feedback, and improve your interview skills
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center">

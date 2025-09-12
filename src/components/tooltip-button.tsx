@@ -20,7 +20,7 @@ import { Loader } from "lucide-react";
 interface TooltipButtonProps {
   content: string;
   icon: React.ReactNode;
-  onClick: () => void;
+  onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
   buttonVariant?: ButtonVariant;
   buttonClassName?: string;
   delay?: number;
