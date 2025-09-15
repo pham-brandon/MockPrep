@@ -6,7 +6,6 @@ import { FormProvider, useForm } from "react-hook-form"
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "@clerk/clerk-react"
-import { Headings } from "./headings"
 import { Loader, Trash2 } from "lucide-react"
 import { Button } from "./ui/button"
 import { Separator } from "./ui/separator"
@@ -17,6 +16,7 @@ import { chatSession } from "@/scripts"
 import { addDoc, collection, doc, serverTimestamp, updateDoc } from "firebase/firestore"
 import { db } from "@/config/firebase.config"
 import { toast } from "sonner"
+import { motion } from "framer-motion"
 
 interface MockInterviewFormProps {
     initialData : Interview | null
@@ -50,7 +50,7 @@ export const MockInterviewForm = ({initialData} : MockInterviewFormProps) => {
     const navigate = useNavigate()
     const {userId} = useAuth()
 
-    const title = initialData?.position ? initialData?.position : "Create a new practice mock interview"
+    
     const breadCrumbPage = initialData?.position ? "Edit" : "Create"
     const actions = initialData ? "Save Changes" : "Create";
     const toastMessage = initialData? { title: "Updated!", description: "Saved changes!" } : { title: "Created!", description: "Practice Mock Interview created!" };
@@ -163,140 +163,172 @@ export const MockInterviewForm = ({initialData} : MockInterviewFormProps) => {
         }
     }, [initialData, form])
 
-  return (<div className="w-full flex-col space-y-4">
-  
-  <BreadCrumbCustom
+  return (
+    <div className="w-full space-y-6">
+      <BreadCrumbCustom
         breadCrumbPage={breadCrumbPage}
-        breadCrumbItems={[{label: "Mock Interviews", link: "/practice"}]}
-    
-  />
-  <div className="w-full mt-4 items-center justify-between flex">
-    <Headings title={title} isSubHeading/>
-    {initialData && (
-        <Button size={"icon"} variant={"ghost"}>
-            <Trash2 className="min-w-4 min-h-4 text-red-500"/>
-        </Button>
-    )}
-  </div>
-
-    <Separator className="my-4"/>
-    <div className="my-6"></div>
-    <FormProvider {...form}>
-        <form 
-            onSubmit={form.handleSubmit(onSubmit)}
-            onReset={() => form.reset({
-                position: initialData?.position || "",
-                description: initialData?.description || "",
-                experience: initialData?.experience ?? 0,
-                techStack: initialData?.techStack || "",
-            })}
-            className="p-8 w-full rounded-lg flex flex-col items-start justify-start gap-6 shadow-md"
+        breadCrumbItems={[{ label: "Mock Interviews", link: "/practice" }]}
+      />
+      
+      <div className="flex items-center justify-between">
+        <motion.div
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3 }}
         >
-        {/* position */}
-        <FormField
-            control={form.control}
-            name="position"
-            render={({ field }) => (
-                <FormItem className="space-y-4 w-full">
-                    <div className="flex w-full items-center justify-between">
-                        <FormLabel>Job Title/Job Role</FormLabel>
-                        <FormMessage className="text-sm" />
-                    </div>
-                    <FormControl>
-                        <Input 
-                        {...field}
-                        disabled={loading} className="h-12"
-                            placeholder="ex: Junior Backend Software Engineer"
-                            value={typeof field.value === 'string' ? field.value : ''}
-                        />
-                    </FormControl>
-                </FormItem>
-            )}
-        />
+          <h1 className="text-2xl font-bold tracking-tight">
+            {initialData ? `Edit ${initialData.position}` : 'Create New Interview'}
+          </h1>
+          <p className="text-muted-foreground">
+            {initialData ? 'Update your interview details' : 'Fill in the details to create a new mock interview'}
+          </p>
+        </motion.div>
+        
+        {initialData && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Button variant="ghost" size="icon" className="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30">
+              <Trash2 className="h-5 w-5" />
+              <span className="sr-only">Delete</span>
+            </Button>
+          </motion.div>
+        )}
+      </div>
 
-        {/* description */}
-        <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-                <FormItem className="space-y-4 w-full">
-                    <div className="flex w-full items-center justify-between">
-                        <FormLabel>Job Description</FormLabel>
-                        <FormMessage className="text-sm" />
-                    </div>
-                    <FormControl>
-                        <Textarea
-                            disabled={loading}
-                            className="h-12"
-                            placeholder="enter the job description of your role..."
-                            {...field}
-                            value={typeof field.value === 'string' ? field.value : ''}
-                        />
-                    </FormControl>
-                </FormItem>
-            )}
-        />
+      <Separator className="my-4" />
 
-        {/* experience */}
-        <FormField
-            control={form.control}
-            name="experience"
-            render={({ field }) => (
-                <FormItem className="space-y-4 w-full">
-                    <div className="flex w-full items-center justify-between">
-                        <FormLabel>Years of experience</FormLabel>
-                        <FormMessage className="text-sm" />
-                    </div>
-                    <FormControl>
-                        <Input 
-                        type="number"
-                        disabled={loading} className="h-12"
-                        placeholder="enter number of years of experience..."
-                        value={field.value === undefined || field.value === null ? '' : String(field.value)}
-                        onChange={e => field.onChange(e.target.value === '' ? '' : Number(e.target.value))}
-                        />
-                    </FormControl>
+      <FormProvider {...form}>
+        <motion.form
+          onSubmit={form.handleSubmit(onSubmit)}
+          onReset={() => form.reset({
+            position: initialData?.position || "",
+            description: initialData?.description || "",
+            experience: initialData?.experience ?? 0,
+            techStack: initialData?.techStack || "",
+          })}
+          className="space-y-6"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* Position Field */}
+            <FormField
+              control={form.control}
+              name="position"
+              render={({ field }) => (
+                <FormItem className="space-y-2">
+                  <FormLabel>Position *</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="e.g., Senior Frontend Developer"
+                      className="h-11"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
                 </FormItem>
-            )}
-        />
+              )}
+            />
 
-        {/* tech stack */}
-        <FormField
+            {/* Experience Field */}
+            <FormField
+              control={form.control}
+              name="experience"
+              render={({ field }) => (
+                <FormItem className="space-y-2">
+                  <FormLabel>Years of Experience *</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min="0"
+                      placeholder="e.g., 5"
+                      className="h-11"
+                      value={field.value?.toString() ?? ''}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        field.onChange(value === '' ? 0 : Number(value));
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* Tech Stack Field */}
+          <FormField
             control={form.control}
             name="techStack"
             render={({ field }) => (
-                <FormItem className="space-y-4 w-full">
-                    <div className="flex w-full items-center justify-between">
-                        <FormLabel>Tech Stack</FormLabel>
-                        <FormMessage className="text-sm" />
-                    </div>
-                    <FormControl>
-                        <Textarea
-                            disabled={loading}
-                            className="h-12"
-                            placeholder="enter the technologies needed (seperate using commas (react, java, python, etc...))"
-                            {...field}
-                            value={typeof field.value === 'string' ? field.value : ''}
-                        />
-                    </FormControl>
-                </FormItem>
+              <FormItem className="space-y-2">
+                <FormLabel>Technologies *</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="e.g., React, TypeScript, Node.js"
+                    className="h-11"
+                    {...field}
+                  />
+                </FormControl>
+                <p className="text-sm text-muted-foreground">
+                  List the main technologies relevant to this position
+                </p>
+                <FormMessage />
+              </FormItem>
             )}
-        />
+          />
 
-        <div className="flex w-full items-center justify-end gap-6">
-            <Button type="reset" size="sm" variant="outline" disabled={isSubmitting || loading}>
-                Reset
+          {/* Description Field */}
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem className="space-y-2">
+                <FormLabel>Job Description *</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Paste the job description or describe the role..."
+                    className="min-h-[120px]"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Action Buttons */}
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-4">
+            <Button
+              type="reset"
+              variant="outline"
+              className="w-full sm:w-auto"
+              disabled={isSubmitting || loading}
+            >
+              Reset
             </Button>
-            <Button type="submit" size="sm" disabled={isSubmitting || loading || !form.formState.isValid}>
-                {loading ? <Loader className="text-gray-50 animate-spin" /> : actions}
+            <Button
+              type="submit"
+              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
+              disabled={isSubmitting || loading}
+            >
+              {loading ? (
+                <>
+                  <Loader className="mr-2 h-4 w-4 animate-spin" />
+                  {initialData ? 'Updating...' : 'Creating...'}
+                </>
+              ) : (
+                actions
+              )}
             </Button>
-        </div>
-
-        </form>
-    </FormProvider>
-
-
-  </div>
+          </div>
+        </motion.form>
+      </FormProvider>
+    </div>
   )
-
 }

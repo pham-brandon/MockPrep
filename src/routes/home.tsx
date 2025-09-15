@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Container } from "@/components/container"
 import { Button } from "@/components/ui/button"
-import { Sparkles, ArrowRight, CheckCircle, Mic, Video, Bot, BarChart2 } from "lucide-react"
+import { Sparkles, ArrowRight, Mic, Video, Bot, BarChart2 } from "lucide-react"
 import { motion } from "framer-motion"
 import { useInView } from 'react-intersection-observer';
 import { Link } from 'react-router-dom';
@@ -217,23 +217,6 @@ const Home = () => {
                 >
                   How It Works
                 </Button>
-              </div>
-              
-              <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-gray-500 dark:text-gray-400">
-                <div className="flex items-center">
-                  <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                  <span>Free</span>
-                </div>
-                <div className="hidden sm:block w-px h-4 bg-gray-300 dark:bg-gray-600"></div>
-                <div className="flex items-center">
-                  <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                  <span>No credit card required</span>
-                </div>
-                <div className="hidden sm:block w-px h-4 bg-gray-300 dark:bg-gray-600"></div>
-                <div className="flex items-center">
-                  <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                  <span>Unlimited practice</span>
-                </div>
               </div>
             </motion.div>
           </div>
