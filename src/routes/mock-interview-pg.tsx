@@ -74,7 +74,7 @@ export const MockInterviewPg = () => {
         breadCrumbPage="Mock Interview"
         breadCrumbItems={[
           { label: "Practice", link: "/practice" },
-          { label: interview.position || "Interview", link: `#` },
+          { label: "Interview Setup", link: `/practice/interview/${interviewId}` }
         ]}
       />
 
