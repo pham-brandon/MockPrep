@@ -1,15 +1,18 @@
 import { db } from '@/config/firebase.config';
 import type { Interview } from '@/types';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { useEffect, useState, useRef } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Lightbulb, Sparkles, Webcam as WebcamIcon, Loader2, Mic, MicOff, Volume2 } from 'lucide-react';
+import { Lightbulb, Sparkles, Webcam as WebcamIcon, Loader2, Mic, MicOff, Volume2, Pencil, Save } from 'lucide-react';
 import Webcam from 'react-webcam';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card } from '@/components/ui/card';
 import { BreadCrumbCustom } from '@/components/breadcrumb-custom';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { toast } from 'sonner';
 
 export const PreInterviewPg = () => {
     const { interviewId } = useParams<{ interviewId: string }>();
@@ -19,6 +22,8 @@ export const PreInterviewPg = () => {
     const [isMicEnabled, setIsMicEnabled] = useState(false);
     const [isMicActive, setIsMicActive] = useState(false);
     const [volumeLevel, setVolumeLevel] = useState(0);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedInterview, setEditedInterview] = useState<Partial<Interview>>({});
     const webcamRef = useRef<Webcam>(null);
     const mediaStreamRef = useRef<MediaStream | null>(null);
     const animationRef = useRef<number | null>(null);
@@ -51,6 +56,48 @@ export const PreInterviewPg = () => {
         
         fetchInterview();
     }, [interviewId, navigate]);
+
+    useEffect(() => {
+        if (interview) {
+            setEditedInterview({
+                position: interview.position,
+                techStack: interview.techStack,
+                experience: interview.experience,
+                description: interview.description
+            });
+        }
+    }, [interview]);
+
+    const handleInputChange = (field: keyof Interview, value: string | number) => {
+        setEditedInterview(prev => ({
+            ...prev,
+            [field]: value
+        }));
+    };
+
+    const handleSave = async () => {
+        if (!interviewId || !interview) return;
+        
+        try {
+            const interviewRef = doc(db, "interviews", interviewId);
+            await updateDoc(interviewRef, {
+                ...editedInterview,
+                updateAt: new Date()
+            });
+            
+            // Update local state
+            setInterview({
+                ...interview,
+                ...editedInterview
+            });
+            
+            setIsEditing(false);
+            toast.success("Interview details updated successfully!");
+        } catch (error) {
+            console.error("Error updating interview:", error);
+            toast.error("Failed to update interview details");
+        }
+    };
 
     const toggleWebcam = () => {
         if (isWebCamEnabled) {
@@ -182,55 +229,132 @@ export const PreInterviewPg = () => {
             >
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight">
-                            {interview.position || 'Interview Preparation'}
-                        </h1>
-                        {interview.techStack && (
-                            <p className="text-muted-foreground">
-                                {interview.techStack}
-                            </p>
+                        {isEditing ? (
+                            <Input
+                                value={editedInterview.position || ''}
+                                onChange={(e) => handleInputChange('position', e.target.value)}
+                                className="text-3xl font-bold border-2 border-gray-300 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded-md px-3 py-2"
+                            />
+                        ) : (
+                            <h1 className="text-3xl font-bold tracking-tight">
+                                {interview.position || 'Interview Preparation'}
+                            </h1>
+                        )}
+                        {isEditing ? (
+                            <Input
+                                value={editedInterview.techStack || ''}
+                                onChange={(e) => handleInputChange('techStack', e.target.value)}
+                                placeholder="Technologies (e.g., React, Node.js, TypeScript)"
+                                className="text-muted-foreground border-2 border-gray-300 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded-md px-3 py-2"
+                            />
+                        ) : (
+                            interview.techStack && (
+                                <p className="text-muted-foreground">
+                                    {interview.techStack}
+                                </p>
+                            )
                         )}
                     </div>
                     
-                    <Button 
-                        asChild
-                        className="w-full md:w-auto bg-blue-600 hover:bg-blue-700"
-                        size="lg"
-                    >
-                        <Link to={`/practice/interview/${interviewId}/start`}>
-                            Start Interview <Sparkles className="ml-2 h-4 w-4" />
-                        </Link>
-                    </Button>
+                    <div className="flex gap-2">
+                        {isEditing ? (
+                            <>
+                                <Button 
+                                    variant="outline"
+                                    onClick={() => setIsEditing(false)}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button 
+                                    onClick={handleSave}
+                                    className="bg-blue-600 hover:bg-blue-700"
+                                >
+                                    <Save className="mr-2 h-4 w-4" />
+                                    Save Changes
+                                </Button>
+                            </>
+                        ) : (
+                            <Button 
+                                variant="outline"
+                                onClick={() => setIsEditing(true)}
+                                className="flex items-center gap-2"
+                            >
+                                <Pencil className="h-4 w-4" />
+                                Edit Details
+                            </Button>
+                        )}
+                        <Button 
+                            asChild
+                            className="bg-blue-600 hover:bg-blue-700"
+                            size="lg"
+                        >
+                            <Link to={`/practice/interview/${interviewId}/start`}>
+                                Start Interview <Sparkles className="ml-2 h-4 w-4" />
+                            </Link>
+                        </Button>
+                    </div>
                 </div>
 
                 <div className="grid md:grid-cols-3 gap-6">
                     <Card className="md:col-span-2 flex flex-col h-full">
                         <div className="p-6 space-y-6">
                             <div>
-                                <h2 className="text-xl font-semibold mb-4">Interview Details</h2>
+                                <div className="flex justify-between items-center mb-4">
+                                    <h2 className="text-xl font-semibold">Interview Details</h2>
+                                </div>
                                 <div className="space-y-4">
                                     <div>
                                         <h3 className="font-medium text-muted-foreground">Position</h3>
-                                        <p>{interview.position}</p>
+                                        {isEditing ? (
+                                            <Input
+                                                value={editedInterview.position || ''}
+                                                onChange={(e) => handleInputChange('position', e.target.value)}
+                                                className="border-2 border-gray-300 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded-md px-3 py-2 w-full"
+                                            />
+                                        ) : (
+                                            <p>{interview.position}</p>
+                                        )}
                                     </div>
-                                    {interview.techStack && (
-                                        <div>
-                                            <h3 className="font-medium text-muted-foreground">Technologies</h3>
-                                            <p>{interview.techStack}</p>
-                                        </div>
-                                    )}
-                                    {interview.experience !== undefined && (
-                                        <div>
-                                            <h3 className="font-medium text-muted-foreground">Experience Level</h3>
-                                            <p>{interview.experience} years</p>
-                                        </div>
-                                    )}
-                                    {interview.description && (
-                                        <div>
-                                            <h3 className="font-medium text-muted-foreground">Job Description</h3>
-                                            <p className="whitespace-pre-line">{interview.description}</p>
-                                        </div>
-                                    )}
+                                    <div>
+                                        <h3 className="font-medium text-muted-foreground">Technologies</h3>
+                                        {isEditing ? (
+                                            <Input
+                                                value={editedInterview.techStack || ''}
+                                                onChange={(e) => handleInputChange('techStack', e.target.value)}
+                                                placeholder="e.g., React, Node.js, TypeScript"
+                                                className="border-2 border-gray-300 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded-md px-3 py-2 w-full"
+                                            />
+                                        ) : (
+                                            <p>{interview.techStack || 'Not specified'}</p>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <h3 className="font-medium text-muted-foreground">Experience Level (years)</h3>
+                                        {isEditing ? (
+                                            <Input
+                                                type="number"
+                                                min="0"
+                                                value={editedInterview.experience ?? ''}
+                                                onChange={(e) => handleInputChange('experience', parseInt(e.target.value) || 0)}
+                                                className="border-2 border-gray-300 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded-md px-3 py-2 w-24"
+                                            />
+                                        ) : (
+                                            <p>{interview.experience || '0'} years</p>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <h3 className="font-medium text-muted-foreground">Job Description</h3>
+                                        {isEditing ? (
+                                            <Textarea
+                                                value={editedInterview.description || ''}
+                                                onChange={(e) => handleInputChange('description', e.target.value)}
+                                                placeholder="Enter job description..."
+                                                className="min-h-[150px] mt-2 border-2 border-gray-300 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded-md px-3 py-2"
+                                            />
+                                        ) : (
+                                            <p className="whitespace-pre-line">{interview.description || 'No description provided'}</p>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
