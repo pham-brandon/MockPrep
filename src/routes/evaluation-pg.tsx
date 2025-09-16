@@ -36,7 +36,8 @@ export const EvaluationPg = () => {
   const navigate = useNavigate();
 
   if (!interviewId) {
-    navigate("/practice", { replace: true });
+    navigate("/practice");
+    return null;
   }
   useEffect(() => {
     if (interviewId) {
@@ -118,15 +119,20 @@ export const EvaluationPg = () => {
     <div className="flex flex-col w-full gap-8 py-5">
       <div className="flex items-center justify-between w-full gap-2">
         <BreadCrumbCustom
-          breadCrumbPage={"Evaluation"}
+          breadCrumbPage="Evaluation"
           breadCrumbItems={[
-            { label: "Mock Interviews", link: "/practice" },
-            {
-              label: `${interview?.position}`,
-              link: `/practice/interview/${interview?.id}`,
-            },
+            { 
+              link: "/practice", 
+              label: "Practice" 
+            }
           ]}
         />
+        {evaluations.length > 0 && (
+          <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-full">
+            <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+            <span className="font-medium text-blue-800">{overAllRating}/10</span>
+          </div>
+        )}
       </div>
 
       <Headings

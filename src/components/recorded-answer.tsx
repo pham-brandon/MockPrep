@@ -1,30 +1,55 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+// Add type definition for Web Speech API
+interface ISpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+  onresult: (event: {
+    results: SpeechRecognitionResultList;
+    resultIndex: number;
+  }) => void;
+  onerror: (event: Event) => void;
+  onend: () => void;
+}
+
+interface SpeechRecognitionErrorEvent extends Event {
+  error: string;
+  message: string;
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition: {
+      new (): ISpeechRecognition;
+      prototype: ISpeechRecognition;
+    };
+    webkitSpeechRecognition: {
+      new (): ISpeechRecognition;
+      prototype: ISpeechRecognition;
+    };
+  }
+}
+
 import { useAuth } from "@clerk/clerk-react";
 import {
   CircleStop,
-  Loader,
   Mic,
-  RefreshCw,
-  Save,
   Video,
   VideoOff,
-  WebcamIcon,
 } from "lucide-react";
-import { useEffect, useState } from "react";
-import useSpeechToText, { type ResultType } from "react-hook-speech-to-text";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import WebCam from "react-webcam";
 import { TooltipButton } from "./tooltip-button";
 import { toast } from "sonner";
 import { chatSession } from "@/scripts";
-import { SaveModal } from "./save-modal";
 import {
   addDoc,
   collection,
-  getDocs,
-  query,
   serverTimestamp,
-  where,
 } from "firebase/firestore";
 import { db } from "@/config/firebase.config";
 
@@ -32,64 +57,124 @@ interface RecordedAnswerProps {
   question: { question: string; answer: string };
   isWebCam: boolean;
   setIsWebCam: (value: boolean) => void;
+  onSaveSuccess?: (response: { answer: string; evaluation: AIResponse }) => void;
+  savedResponse?: { answer: string; evaluation: AIResponse };
 }
 
-interface AIResponse {
+export interface AIResponse {
   ratings: number;
   evaluation: string;
 }
+
+
 
 export const RecordedAnswer = ({
   question,
   isWebCam,
   setIsWebCam,
+  onSaveSuccess,
+  savedResponse,
 }: RecordedAnswerProps) => {
-  const {
-    interimResult,
-    isRecording,
-    results,
-    startSpeechToText,
-    stopSpeechToText,
-  } = useSpeechToText({
-    continuous: true,
-    useLegacyResults: false,
-  });
-
-  const [userAnswer, setUserAnswer] = useState("");
+  const [userAnswer, setUserAnswer] = useState(savedResponse?.answer || "");
   const [isAiGenerating, setIsAiGenerating] = useState(false);
-  const [aiResult, setAiResult] = useState<AIResponse | null>(null);
-  const [open, setOpen] = useState(false);
+  const [, setAiResult] = useState<AIResponse | null>(savedResponse?.evaluation || null);
   const [loading, setLoading] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [transcript, setTranscript] = useState("");
+  const [, setHasUnsavedChanges] = useState(false);
+  const recognitionRef = useRef<ISpeechRecognition | null>(null);
+  const finalTranscriptRef = useRef("");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { userId } = useAuth();
   const { interviewId } = useParams();
 
-  const recordedUserAnswer = async () => {
-    if (isRecording) {
-      // Stop recording and process the answer
-      stopSpeechToText();
-
-      // Validate that user provided a meaningful answer
-      if (userAnswer?.length < 0) {
-        toast.error("Error", {
-          description: "Your answer should be more than 0 characters",
-        });
-
+  // Initialize speech recognition
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      
+      if (!SpeechRecognition) {
+        console.error('Speech recognition not supported in this browser');
         return;
       }
 
-      // Generate AI evaluation comparing user's answer to the correct answer
-      const aiResult = await generateResult(
-        question.question,
-        question.answer,
-        userAnswer
-      );
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = true;
+      recognitionRef.current.interimResults = true;
 
-      setAiResult(aiResult);
-    } else {
-      // Start recording the user's answer
-      startSpeechToText();
+      recognitionRef.current.onresult = (event) => {
+        let interimTranscript = '';
+        let finalTranscript = finalTranscriptRef.current;
+
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript + ' ';
+          } else {
+            interimTranscript += transcript;
+          }
+        }
+
+        finalTranscriptRef.current = finalTranscript.trim();
+        setTranscript(finalTranscript + (interimTranscript ? ' ' + interimTranscript : ''));
+      };
+
+      recognitionRef.current.onerror = (event: Event) => {
+        const errorEvent = event as SpeechRecognitionErrorEvent;
+        console.error('Speech recognition error', errorEvent.error);
+        stopRecording();
+      };
+
+      recognitionRef.current.onend = () => {
+        if (isRecording) {
+          // Restart recognition if still recording
+          recognitionRef.current?.start();
+        }
+      };
     }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, []);
+
+  const startRecording = () => {
+    if (recognitionRef.current && !isRecording) {
+      finalTranscriptRef.current = userAnswer;
+      setTranscript(userAnswer);
+      recognitionRef.current.start();
+      setIsRecording(true);
+    }
+  };
+
+  const stopRecording = () => {
+    if (recognitionRef.current && isRecording) {
+      recognitionRef.current.stop();
+      setIsRecording(false);
+      setUserAnswer(transcript);
+      setHasUnsavedChanges(true);
+    }
+  };
+
+  const toggleRecording = () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+    // Focus the textarea when starting/stopping recording
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  };
+
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newValue = e.target.value;
+    setUserAnswer(newValue);
+    setHasUnsavedChanges(true);
   };
 
   const cleanJsonResponse = (responseText: string) => {
@@ -115,7 +200,7 @@ export const RecordedAnswer = ({
   ): Promise<AIResponse> => {
     // Generate AI evaluation for the user's interview answer
     setIsAiGenerating(true);
-    
+
     // Create prompt for AI to compare user answer with correct answer
     const prompt = `
       Question: "${qst}"
@@ -146,167 +231,132 @@ export const RecordedAnswer = ({
     }
   };
 
-  const recordedNewAnswer = () => {
-    // Reset the answer and start a new recording session
-    setUserAnswer("");
-    stopSpeechToText();
-    startSpeechToText();
-  };
 
   const saveUserAnswer = async () => {
-    // Save the user's answer and AI evaluation to Firebase
+    if (!userAnswer) return;
+    
     setLoading(true);
 
-    if (!aiResult) {
-      return;
-    }
-
-    const currentQuestion = question.question;
     try {
-      // Check if user has already answered this question to prevent duplicates
-      const userAnswerQuery = query(
-        collection(db, "userAnswers"),
-        where("userId", "==", userId),
-        where("question", "==", currentQuestion)
+      // Generate AI evaluation for the answer
+      const aiResult = await generateResult(
+        question.question,
+        question.answer,
+        userAnswer
       );
 
-      const querySnap = await getDocs(userAnswerQuery);
-
-      // Prevent duplicate answers for the same question
-      if (!querySnap.empty) {
-        console.log("Query Snap Size", querySnap.size);
-        toast.info("Already Answered", {
-          description: "You have already answered this question",
-        });
-        return;
-      } else {
-        // Save the user's answer with AI evaluation to Firebase
-        await addDoc(collection(db, "userAnswers"), {
-          mockIdRef: interviewId,
-          question: question.question,
-          correct_ans: question.answer,
-          user_ans: userAnswer,
-          evaluation: aiResult.evaluation,
-          rating: aiResult.ratings,
-          userId,
-          createdAt: serverTimestamp(),
-        });
-
-        toast("Saved", { description: "Your answer has been saved.." });
-      }
-
-      // Reset the form after successful save
-      setUserAnswer("");
-      stopSpeechToText();
-    } catch (error) {
-      toast("Error", {
-        description: "An error occurred while saving your answer.",
+      // Save to Firestore
+      await addDoc(collection(db, "userAnswers"), {
+        mockIdRef: interviewId,
+        question: question.question,
+        correct_ans: question.answer,
+        user_ans: userAnswer,
+        evaluation: aiResult.evaluation,
+        rating: aiResult.ratings,
+        userId,
+        createdAt: serverTimestamp(),
+        status: 'saved',
       });
-      console.log(error);
+
+      toast.success("Response saved!");
+      
+      // Notify parent component
+      if (onSaveSuccess) {
+        onSaveSuccess({
+          answer: userAnswer,
+          evaluation: aiResult
+        });
+      }
+      
+    } catch (error) {
+      console.error("Error saving answer:", error);
+      toast.error("Error saving response. Please try again.");
     } finally {
       setLoading(false);
-      setOpen(!open);
     }
   };
 
   useEffect(() => {
-    // Combine speech-to-text results into a single answer string
-    const combineTranscripts = results
-      .filter((result): result is ResultType => typeof result !== "string")
-      .map((result) => result.transcript)
-      .join(" ");
-
-    setUserAnswer(combineTranscripts);
-  }, [results]);
+    // Reset state when question changes
+    setUserAnswer(savedResponse?.answer || "");
+    setAiResult(savedResponse?.evaluation || null);
+    setHasUnsavedChanges(false);
+  }, [question.question, savedResponse]);
 
   return (
-    <div className="w-full flex flex-col items-center gap-8 mt-4">
-      {/* Modal for confirming answer save */}
-      <SaveModal
-        isOpen={open}
-        onClose={() => setOpen(false)}
-        onConfirm={saveUserAnswer}
-        loading={loading}
-      />
+    <div className="space-y-6 mt-6">
+      <div className="space-y-4">
+        <div className="text-center">
+          <h3 className="text-lg font-medium mb-4">Your Answer</h3>
+          
+          {/* Webcam Toggle */}
+          <div className="mb-4">
+            <div className="w-48 h-48 mx-auto bg-muted rounded-lg overflow-hidden flex items-center justify-center mb-3 border border-border shadow-sm">
+              {isWebCam ? (
+                <WebCam 
+                  audio={false}
+                  mirrored
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center p-4 text-center space-y-3">
+                  <Video className="h-10 w-10 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">
+                    {navigator.mediaDevices ? 
+                      "Camera off" : 
+                      "No camera"}
+                  </p>
+                </div>
+              )}
+            </div>
+            <div className="flex justify-center gap-4">
+              <TooltipButton
+                content={isWebCam ? "Turn off" : "Turn on"}
+                icon={isWebCam ? <VideoOff className="h-4 w-4" /> : <Video className="h-4 w-4" />}
+                onClick={() => setIsWebCam(!isWebCam)}
+                className="h-10 w-10"
+                size="sm"
+                variant="outline"
+              />
+              <TooltipButton
+                content={isRecording ? "Stop Recording" : "Start Speaking"}
+                icon={isRecording ? <CircleStop className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                onClick={toggleRecording}
+                variant={isRecording ? 'destructive' : 'outline'}
+                className="h-10 w-10"
+                size="sm"
+              />
+            </div>
+          </div>
 
-      {/* Webcam display area */}
-      <div className="w-full h-[400px] md:w-96 flex flex-col items-center justify-center border p-4 bg-gray-50 rounded-md">
-        {isWebCam ? (
-          <WebCam
-            onUserMedia={() => setIsWebCam(true)}
-            onUserMediaError={() => setIsWebCam(false)}
-            className="w-full h-full object-cover rounded-md"
-          />
-        ) : (
-          <WebcamIcon className="min-w-24 min-h-24 text-muted-foreground" />
-        )}
+          {/* Combined input area */}
+          <div className="relative">
+            <textarea
+              ref={textareaRef}
+              value={isRecording ? transcript : userAnswer}
+              onChange={handleTextChange}
+              placeholder="Type your answer or click the mic to speak..."
+              className="w-full min-h-[120px] p-4 pr-12 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              disabled={isAiGenerating || loading}
+            />
+            {isRecording && (
+              <div className="absolute right-3 bottom-3 flex items-center gap-2">
+                <span className="inline-flex h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
+                <span className="text-xs text-red-600">Recording...</span>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Control buttons for webcam, recording, and saving */}
-      <div className="flex items-center justify-center gap-3">
-        {/* Webcam toggle button */}
-        <TooltipButton
-          content={isWebCam ? "Turn Off" : "Turn On"}
-          icon={
-            isWebCam ? (
-              <VideoOff className="min-w-5 min-h-5" />
-            ) : (
-              <Video className="min-w-5 min-h-5" />
-            )
-          }
-          onClick={() => setIsWebCam(!isWebCam)}
-        />
-
-        {/* Start/Stop recording button */}
-        <TooltipButton
-          content={isRecording ? "Stop Recording" : "Start Recording"}
-          icon={
-            isRecording ? (
-              <CircleStop className="min-w-5 min-h-5" />
-            ) : (
-              <Mic className="min-w-5 min-h-5" />
-            )
-          }
-          onClick={recordedUserAnswer}
-        />
-
-        {/* Record again button */}
-        <TooltipButton
-          content="Record Again"
-          icon={<RefreshCw className="min-w-5 min-h-5" />}
-          onClick={recordedNewAnswer}
-        />
-
-        {/* Save result button (disabled until AI evaluation is generated) */}
-        <TooltipButton
-          content="Save Result"
-          icon={
-            isAiGenerating ? (
-              <Loader className="min-w-5 min-h-5 animate-spin" />
-            ) : (
-              <Save className="min-w-5 min-h-5" />
-            )
-          }
-          onClick={() => setOpen(!open)}
-          disabled={!aiResult}
-        />
-      </div>
-
-      {/* Display area for user's transcribed answer */}
-      <div className="w-full mt-4 p-4 border rounded-md bg-gray-50">
-        <h2 className="text-lg font-semibold">Your Answer:</h2>
-
-        <p className="text-sm mt-2 text-gray-700 whitespace-normal">
-          {userAnswer || "Start recording to see your answer here"}
-        </p>
-
-        {/* Show real-time speech recognition results */}
-        {interimResult && (
-          <p className="text-sm text-gray-500 mt-2">
-            <strong>Current Speech:</strong>
-            {interimResult}
-          </p>
-        )}
+      <div className="flex justify-end gap-2 pt-2">
+        <button
+          onClick={saveUserAnswer}
+          disabled={!userAnswer || loading || isRecording}
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? 'Saving...' : 'Save Response'}
+        </button>
       </div>
     </div>
   );

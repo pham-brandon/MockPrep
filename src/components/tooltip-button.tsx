@@ -21,32 +21,43 @@ interface TooltipButtonProps {
   content: string;
   icon: React.ReactNode;
   onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
-  buttonVariant?: ButtonVariant;
-  buttonClassName?: string;
+  variant?: ButtonVariant;
+  className?: string;
+  size?: 'sm' | 'default' | 'lg' | 'icon';
   delay?: number;
   disabled?: boolean;
   loading?: boolean;
+  // Legacy props (kept for backward compatibility)
+  buttonVariant?: ButtonVariant;
+  buttonClassName?: string;
 }
 
 export const TooltipButton = ({
   content,
   icon,
   onClick,
-  buttonVariant = "ghost",
-  buttonClassName = "",
+  variant: propVariant,
+  className = "",
+  size = "icon",
   delay = 0,
   disabled = false,
   loading = false,
+  // Legacy props
+  buttonVariant,
+  buttonClassName,
 }: TooltipButtonProps) => {
+  // Support both new and legacy prop names
+  const variant = propVariant || buttonVariant || "ghost";
+  const buttonClass = className || buttonClassName || "";
   return (
     <TooltipProvider delayDuration={delay}>
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
-            size={"icon"}
+            size={size}
             disabled={disabled}
-            variant={buttonVariant}
-            className={buttonClassName}
+            variant={variant}
+            className={buttonClass}
             onClick={onClick}
           >
             {loading ? (

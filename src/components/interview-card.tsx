@@ -25,17 +25,19 @@ export const InterviewCard = ({ interview, onMockPage = false, onDelete }: Inter
       <Card className="h-full flex flex-col rounded-xl overflow-hidden border border-gray-100 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-md hover:shadow-lg transition-all duration-300">
         <CardHeader className="pb-3">
           <div className="flex items-center gap-2 mb-2">
-            <CardTitle className="text-xl font-semibold text-gray-900 dark:text-white">
+            <CardTitle className="text-xl font-semibold text-gray-900 dark:text-white line-clamp-1">
               {interview?.position}
             </CardTitle>
           </div>
-          <p className="text-gray-600 dark:text-gray-300 text-sm">
-            {interview?.description}
-          </p>
+          <div className="h-[60px] overflow-hidden">
+            <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-3">
+              {interview?.description}
+            </p>
+          </div>
         </CardHeader>
         
-        <CardContent className="flex-1 pb-4">
-          <div className="flex flex-wrap gap-2 mb-4">
+        <CardContent className="pb-4">
+          <div className="flex flex-wrap gap-2 max-h-[72px] overflow-y-auto py-1">
             {interview?.techStack && interview.techStack.split(",").map((tech, index) => (
               <Badge 
                 key={index}
@@ -53,8 +55,8 @@ export const InterviewCard = ({ interview, onMockPage = false, onDelete }: Inter
           onMockPage ? "justify-end" : "justify-between"
         )}>
           <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-            <Clock className="w-4 h-4 mr-1.5" />
-            <span>
+            <Clock className="w-4 h-4 mr-1.5 flex-shrink-0" />
+            <span className="whitespace-nowrap">
               {new Date(interview?.createdAt.toDate()).toLocaleDateString("en-US", {
                 year: 'numeric',
                 month: 'short',
@@ -64,7 +66,7 @@ export const InterviewCard = ({ interview, onMockPage = false, onDelete }: Inter
           </div>
           
           {!onMockPage && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 ml-2">
               <TooltipButton
                 content="Delete"
                 buttonVariant="ghost"
@@ -73,7 +75,7 @@ export const InterviewCard = ({ interview, onMockPage = false, onDelete }: Inter
                   onDelete?.(interview.id);
                 }}
                 disabled={!onDelete}
-                buttonClassName="h-8 w-8 p-0 hover:bg-red-50 dark:hover:bg-red-900/30 text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300"
+                buttonClassName="h-8 w-8 p-0 hover:bg-red-50 dark:hover:bg-red-900/30 text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 flex-shrink-0"
                 icon={<Trash2 className="h-4 w-4" />}
                 loading={false}
               />
@@ -81,9 +83,12 @@ export const InterviewCard = ({ interview, onMockPage = false, onDelete }: Inter
               <TooltipButton
                 content="Edit"
                 buttonVariant="ghost"
-                onClick={() => navigate(`/practice/${interview?.id}`, { replace: true })}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/practice/${interview?.id}`);
+                }}
                 disabled={false}
-                buttonClassName="h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-500 hover:text-blue-500 dark:text-gray-400"
+                buttonClassName="h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-500 hover:text-blue-500 dark:text-gray-400 flex-shrink-0"
                 icon={<SquarePen className="h-4 w-4" />}
                 loading={false}
               />
@@ -91,9 +96,12 @@ export const InterviewCard = ({ interview, onMockPage = false, onDelete }: Inter
               <TooltipButton
                 content="Evaluation"
                 buttonVariant="ghost"
-                onClick={() => navigate(`/practice/evaluation/${interview?.id}`, { replace: true })}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/practice/evaluation/${interview?.id}`);
+                }}
                 disabled={false}
-                buttonClassName="h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-500 hover:text-blue-500 dark:text-gray-400"
+                buttonClassName="h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-500 hover:text-blue-500 dark:text-gray-400 flex-shrink-0"
                 icon={<MessageSquareMore className="h-4 w-4" />}
                 loading={false}
               />
@@ -101,10 +109,13 @@ export const InterviewCard = ({ interview, onMockPage = false, onDelete }: Inter
               <TooltipButton
                 content="Start Interview"
                 buttonVariant="default"
-                onClick={() => navigate(`/practice/interview/${interview?.id}`, { replace: true })}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/practice/interview/${interview?.id}`);
+                }}
                 disabled={false}
-                buttonClassName="h-8 px-3 bg-yellow-500 hover:bg-yellow-600 text-white shadow-md hover:shadow-lg transition-all duration-200"
-                icon={<Sparkles className="h-4 w-4 mr-1" />}
+                buttonClassName="h-8 px-3 bg-yellow-500 hover:bg-yellow-600 text-white shadow-md hover:shadow-lg transition-all duration-200 flex-shrink-0 whitespace-nowrap"
+                icon={<Sparkles className="h-4 w-4 mr-1 flex-shrink-0" />}
                 loading={false}
               />
             </div>
