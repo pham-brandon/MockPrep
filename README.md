@@ -19,16 +19,16 @@ MockPrep is a web application designed to help users prepare for job interviews 
 <img width="1343" height="833" alt="Image" src="https://github.com/user-attachments/assets/41fdd6ee-f673-4516-9fe0-8e4ec809e3f1" />
 
 ### Create Interview
-<img width="1815" height="1014" alt="Image" src="https://github.com/user-attachments/assets/be4a6205-d0a7-4f60-9948-b812f7911983" />
+<img width="1536" height="803" alt="Image" src="https://github.com/user-attachments/assets/327f1937-cc78-4310-b52d-041f2591f52e" />
 
 ### Pre-interview Setup
-<img width="1270" height="1080" alt="Image" src="https://github.com/user-attachments/assets/d57aa1ba-302d-4f6c-90b5-765e2292e24e" />
+<img width="1149" height="1076" alt="Image" src="https://github.com/user-attachments/assets/0a46b66e-0a58-40d6-a02d-e1e990c7fc53" />
 
 ### Live Interview
-<img width="1331" height="1060" alt="Image" src="https://github.com/user-attachments/assets/ce2ea442-1044-42d7-b3c9-948b696486d7" />
+<img width="1300" height="1065" alt="Image" src="https://github.com/user-attachments/assets/fc9de09f-a1cf-482c-a548-f8969e467e97" />
 
 ### Performance Evaluation
-<img width="1542" height="928" alt="Image" src="https://github.com/user-attachments/assets/470c0a7e-3925-4d79-8ec1-91d27c12f047" />
+<img width="1528" height="1075" alt="Image" src="https://github.com/user-attachments/assets/088b3e35-7846-4ed7-8ca2-5d2f587bb36a" />
 
 
 ## Tech Stack
