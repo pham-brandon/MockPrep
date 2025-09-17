@@ -195,20 +195,30 @@ export const RecordedAnswer = ({
 
   const generateResult = async (
     qst: string,
-    qstAns: string,
+    _qstAns: string,
     userAns: string
   ): Promise<AIResponse> => {
     // Generate AI evaluation for the user's interview answer
     setIsAiGenerating(true);
 
     // Create prompt for AI to compare user answer with correct answer
-    const prompt = `
-      Question: "${qst}"
-      User Answer: "${userAns}"
-      Correct Answer: "${qstAns}"
-      Please compare the user's answer to the correct answer, and provide a rating (from 1 to 10) based on answer quality, and offer evaluation for improvement.
-      Return the result in JSON format with the fields "ratings" (number) and "evaluation" (string).
-    `;
+    const prompt = `As an interviewer, evaluate this response to "${qst}":
+
+"${userAns}"
+
+Rate 1-10 using this scale:
+9-10 = Excellent: Clear, comprehensive, with strong examples
+7-8 = Very Good: Strong response with minor areas for improvement
+5-6 = Good: Solid foundation but needs more depth or clarity
+3-4 = Developing: Shows understanding but needs significant improvement
+1-2 = Needs Work: Lacks clarity or relevance to the question
+
+Provide feedback using bullet points. Focus on:
+• What worked well in the response
+• 1-2 specific areas for improvement
+• Actionable suggestions for future responses
+
+Format as JSON: {"ratings": number, "evaluation": string}`;
 
     try {
       // Send prompt to AI and get response

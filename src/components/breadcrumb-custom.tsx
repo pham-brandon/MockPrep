@@ -21,7 +21,7 @@ export const BreadCrumbCustom = ({breadCrumbPage, breadCrumbItems} : BreadCrumbC
         <BreadcrumbItem>
           <BreadcrumbLink
             href="/"
-            className="flex items-center justify-center hover:text-emerald-500"
+            className="flex items-center justify-center hover:text-blue-600 transition-colors duration-200"
           >
             <Home className="w-3 h-3 mr-2" />
             Home
@@ -35,7 +35,7 @@ export const BreadCrumbCustom = ({breadCrumbPage, breadCrumbItems} : BreadCrumbC
               <BreadcrumbItem>
                 <BreadcrumbLink
                   href={item.link}
-                  className="hover:text-emerald-500"
+                  className="hover:text-blue-600 transition-colors duration-200"
                 >
                   {item.label}
                 </BreadcrumbLink>
