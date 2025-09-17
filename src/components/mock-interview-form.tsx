@@ -13,7 +13,7 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/f
 import { Input } from "./ui/input"
 import { Textarea } from "./ui/textarea"
 import { chatSession } from "@/scripts"
-import { addDoc, collection, doc, serverTimestamp, updateDoc } from "firebase/firestore"
+import { addDoc, collection, deleteDoc, doc, serverTimestamp, updateDoc } from "firebase/firestore"
 import { db } from "@/config/firebase.config"
 import { toast } from "sonner"
 import { motion } from "framer-motion"
@@ -45,10 +45,39 @@ export const MockInterviewForm = ({initialData} : MockInterviewFormProps) => {
         }
     })
 
-    const {isValid, isSubmitting} = form.formState
-    const[loading, setLoading] = useState(false)
-    const navigate = useNavigate()
-    const {userId} = useAuth()
+    const {isValid, isSubmitting} = form.formState;
+    const [loading, setLoading] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const navigate = useNavigate();
+    const {userId} = useAuth();
+
+    const handleDelete = async () => {
+        if (!initialData?.id) return;
+        
+        if (window.confirm('Are you sure you want to delete this interview? This action cannot be undone.')) {
+            try {
+                setIsDeleting(true);
+                await deleteDoc(doc(db, "interviews", initialData.id));
+                toast.success('Interview deleted successfully');
+                navigate('/practice');
+            } catch (error) {
+                console.error('Error deleting interview:', error);
+                toast.error('Failed to delete interview');
+            } finally {
+                setIsDeleting(false);
+            }
+        }
+    };
+
+    const handleReset = () => {
+        form.reset({
+            position: "",
+            description: "",
+            experience: 0,
+            techStack: "",
+        });
+        form.clearErrors();
+    };
 
     
     const breadCrumbPage = initialData?.position ? "Edit" : "Create"
@@ -191,8 +220,18 @@ export const MockInterviewForm = ({initialData} : MockInterviewFormProps) => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <Button variant="ghost" size="icon" className="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30">
-              <Trash2 className="h-5 w-5" />
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30"
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? (
+                <Loader className="h-5 w-5 animate-spin" />
+              ) : (
+                <Trash2 className="h-5 w-5" />
+              )}
               <span className="sr-only">Delete</span>
             </Button>
           </motion.div>
@@ -305,13 +344,14 @@ export const MockInterviewForm = ({initialData} : MockInterviewFormProps) => {
           {/* Action Buttons */}
           <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-4">
             <Button
-              type="reset"
-              variant="outline"
-              className="w-full sm:w-auto"
-              disabled={isSubmitting || loading}
-            >
-              Reset
-            </Button>
+            type="button"
+            variant="outline"
+            className="w-full sm:w-auto"
+            onClick={handleReset}
+            disabled={isSubmitting || loading || isDeleting}
+          >
+            Reset
+          </Button>
             <Button
               type="submit"
               className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
