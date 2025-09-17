@@ -22,7 +22,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
-import { Star } from "lucide-react";
+import { Star, CheckCircle, AlertCircle, Lightbulb } from "lucide-react";
 
 export const EvaluationPg = () => {
   const { interviewId } = useParams<{ interviewId: string }>();
@@ -155,102 +155,212 @@ export const EvaluationPg = () => {
         {interview && <InterviewCard interview={interview} onMockPage />}
       </div>
 
-      {evaluations && (
-        <Accordion type="single" collapsible className="space-y-6">
-          {evaluations.map((evaluationItem) => (
-            <AccordionItem
-              key={evaluationItem.id}
-              value={evaluationItem.id}
-              className="border rounded-lg overflow-hidden shadow-sm hover:shadow transition-all"
-            >
-              <AccordionTrigger
-                onClick={() => setActiveEvaluate(evaluationItem.id)}
-                className={cn(
-                  "px-6 py-4 flex items-center justify-between text-base transition-colors hover:no-underline hover:bg-accent/50",
-                  activeEvaluate === evaluationItem.id && "bg-accent/30"
-                )}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary font-medium">
-                    {evaluations.findIndex(e => e.id === evaluationItem.id) + 1}
-                  </div>
-                  <span className="text-left">{evaluationItem.question}</span>
-                </div>
-              </AccordionTrigger>
+      <div className="space-y-8">
+        <div className="text-center space-y-3">
+          <h2 className="text-2xl font-semibold tracking-tight">Your Performance Breakdown</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Review detailed feedback on each question to understand your strengths and areas for improvement.
+          </p>
+        </div>
 
-              <AccordionContent className="px-6 py-5 bg-white space-y-6">
-                <div className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium ${
-                  evaluationItem.rating >= 8 ? 'bg-green-100 text-green-800' : 
-                  evaluationItem.rating >= 5 ? 'bg-yellow-100 text-yellow-800' : 
-                  'bg-red-100 text-red-800'
-                }`}>
-                  <Star className={`w-4 h-4 mr-1.5 ${
-                    evaluationItem.rating >= 8 ? 'text-green-600' : 
-                    evaluationItem.rating >= 5 ? 'text-yellow-600' : 
-                    'text-red-600'
-                  }`} />
-                  Rating: {evaluationItem.rating}/10
-                </div>
-
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <h3 className="flex items-center text-sm font-medium text-indigo-600">
-                      <div className="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center mr-2">
-                        <span className="text-indigo-600">📝</span>
+        {evaluations && (
+          <Accordion type="multiple" className="space-y-4">
+            {evaluations.map((evaluationItem, index) => {
+              const rating = evaluationItem.rating || 0;
+              const ratingColor = rating >= 8 ? 'text-green-600' : rating >= 5 ? 'text-yellow-600' : 'text-red-600';
+              const ratingBg = rating >= 8 ? 'bg-green-50' : rating >= 5 ? 'bg-yellow-50' : 'bg-red-50';
+              
+              return (
+                <AccordionItem
+                  key={evaluationItem.id}
+                  value={evaluationItem.id}
+                  className="border rounded-xl overflow-hidden transition-all hover:shadow-md"
+                >
+                  <AccordionTrigger
+                    onClick={() => setActiveEvaluate(activeEvaluate === evaluationItem.id ? '' : evaluationItem.id)}
+                    className={cn(
+                      "px-6 py-4 hover:no-underline hover:bg-muted/30 transition-colors text-left",
+                      activeEvaluate === evaluationItem.id && "bg-muted/20"
+                    )}
+                  >
+                    <div className="flex gap-4 w-full">
+                      <div className={`flex-shrink-0 w-10 h-10 rounded-full ${ratingBg} flex items-center justify-center`}>
+                        <span className={`text-lg font-semibold ${ratingColor}`}>{rating}</span>
                       </div>
-                      Expected Answer
-                    </h3>
-                    <div className="bg-indigo-50/60 p-4 rounded-lg text-sm border border-indigo-100 text-gray-700">
-                      {evaluationItem.correct_ans}
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <h3 className="flex items-center text-sm font-medium text-blue-600">
-                      <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center mr-2">
-                        <span className="text-blue-600">✏️</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium">Question {index + 1}</div>
+                        <div className={cn(
+                          "text-sm text-muted-foreground mt-0.5",
+                          activeEvaluate === evaluationItem.id ? "whitespace-pre-wrap" : "line-clamp-1"
+                        )}>
+                          {evaluationItem.question}
+                        </div>
                       </div>
-                      Your Answer
-                    </h3>
-                    <div className="bg-blue-50/60 p-4 rounded-lg text-sm border border-blue-100 text-gray-700">
-                      {evaluationItem.user_ans}
                     </div>
-                  </div>
+                  </AccordionTrigger>
 
-                  <div className="space-y-2">
-                    <h3 className="flex items-center text-sm font-medium text-emerald-600 mb-2">
-                      <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center mr-2">
-                        <span className="text-emerald-600">🔍</span>
+                  <AccordionContent className="px-6 py-5 bg-white space-y-6 border-t">
+                    <div className="grid md:grid-cols-2 gap-6">
+                      {/* Left Column - Expected Answer */}
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <h3 className="flex items-center text-sm font-medium text-foreground">
+                            <CheckCircle className="w-4 h-4 mr-2 text-green-600" />
+                            Expected Answer
+                          </h3>
+                          <div className="bg-muted/30 p-4 rounded-lg text-sm border text-foreground">
+                            {(() => {
+                              const formattedAnswer = evaluationItem.correct_ans
+                                .replace(/^\s*[-*]\s+(.+)$/gm, '• $1')
+                                .replace(/([.!?])([A-Z])/g, '$1 $2')
+                                .replace(/^(\d+)\.\s+/gm, '$1. ')
+                                .replace(/([.!?])\s*(?=[A-Z])/g, '$1  \n\n');
+                              
+                              return (
+                                <div className="prose prose-sm max-w-none">
+                                  {formattedAnswer.split('\n\n').map((paragraph, i) => (
+                                    <p key={i} className="mb-3 last:mb-0">
+                                      {paragraph.trim().split('• ').map((item, j) => 
+                                        j === 0 ? item : (
+                                          <span key={j} className="block pl-4 -indent-4">
+                                            • {item.trim()}
+                                          </span>
+                                        )
+                                      )}
+                                    </p>
+                                  ))}
+                                </div>
+                              );
+                            })()}
+                          </div>
+                        </div>
                       </div>
-                      Detailed Feedback
-                    </h3>
-                    <div className="bg-emerald-50/50 p-4 rounded-lg border border-emerald-100">
-                      <p className={cn(
-                        "text-gray-700 leading-relaxed whitespace-pre-line text-sm [&>p]:mb-3 [&>p:last-child]:mb-0",
-                        !evaluationItem.evaluation && "text-muted-foreground italic"
-                      )}>
-                        {evaluationItem.evaluation
-                          ?.replace(/^•\s*/gm, '')  // Remove bullet points
-                          .trim()
-                          .replace(/\n{3,}/g, '\n\n')  // Normalize multiple newlines
-                          .replace(/([.!?])([A-Z])/g, '$1 $2')  // Add space after punctuation
-                          .split('\n')
-                          .map((paragraph, i) => (
-                            <p key={i} className="mb-3 last:mb-0">
-                              {paragraph}
-                            </p>
-                          ))
-                          || <span className="text-muted-foreground">No evaluation available yet</span>
-                        }
-                      </p>
+
+                      {/* Right Column - Key Takeaways */}
+                      <div className="space-y-4">
+                        <div className="space-y-3">
+                          <h3 className="flex items-center text-sm font-medium text-foreground">
+                            <Lightbulb className="w-4 h-4 mr-2 text-amber-500" />
+                            Key Takeaways
+                          </h3>
+                          <div className="bg-gradient-to-br from-amber-50/70 to-amber-50/30 p-5 rounded-xl border border-amber-100 shadow-sm">
+                            <div className="space-y-4">
+                              {/* Performance Summary */}
+                              <div className="flex items-start gap-3 p-3 bg-white rounded-lg border border-amber-100">
+                                <div className="mt-0.5 flex-shrink-0">
+                                  {rating >= 7 ? (
+                                    <div className="p-1.5 rounded-full bg-green-50">
+                                      <CheckCircle className="w-5 h-5 text-green-500" />
+                                    </div>
+                                  ) : (
+                                    <div className="p-1.5 rounded-full bg-amber-50">
+                                      <AlertCircle className="w-5 h-5 text-amber-500" />
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="space-y-1">
+                                  <h4 className="text-sm font-semibold text-foreground">
+                                    {rating >= 7 ? 'Great Work!' : 'Areas to Improve'}
+                                  </h4>
+                                  <p className="text-sm text-muted-foreground leading-snug">
+                                    {rating >= 7 
+                                      ? 'Your response demonstrates strong understanding.'
+                                      : 'Here are some suggestions to enhance your response:'}
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* Score Visualization */}
+                              <div className="space-y-2 p-3 bg-white/50 rounded-lg border border-amber-50">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs font-medium text-muted-foreground">PERFORMANCE SCORE</span>
+                                  <span className={`text-sm font-semibold ${ratingColor}`}>{rating}/10</span>
+                                </div>
+                                <div className="h-2 w-full bg-muted/50 rounded-full overflow-hidden">
+                                  <div 
+                                    className={`h-full rounded-full transition-all duration-500 ease-out ${
+                                      rating >= 8 ? 'bg-green-500' : rating >= 5 ? 'bg-yellow-500' : 'bg-red-500'
+                                    }`}
+                                    style={{ width: `${rating * 10}%` }}
+                                  ></div>
+                                </div>
+                                <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                                  <span>Needs Work</span>
+                                  <span>Excellent</span>
+                                </div>
+                              </div>
+
+                              {/* Quick Tips */}
+                              {rating < 8 && (
+                                <div className="space-y-2">
+                                  <h4 className="text-xs font-medium text-foreground">QUICK TIPS</h4>
+                                  <ul className="space-y-2 text-sm">
+                                    <li className="flex items-start gap-2">
+                                      <span className="text-amber-500 mt-0.5">•</span>
+                                      <span>Review the expected answer for key points</span>
+                                    </li>
+                                    <li className="flex items-start gap-2">
+                                      <span className="text-amber-500 mt-0.5">•</span>
+                                      <span>Structure your response clearly</span>
+                                    </li>
+                                    <li className="flex items-start gap-2">
+                                      <span className="text-amber-500 mt-0.5">•</span>
+                                      <span>Use specific examples when possible</span>
+                                    </li>
+                                  </ul>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Your Answer - Moved under Key Takeaways */}
+                        <div className="space-y-2">
+                          <h3 className="flex items-center text-sm font-medium text-foreground">
+                            <AlertCircle className="w-4 h-4 mr-2 text-blue-600" />
+                            Your Answer
+                          </h3>
+                          <div className="bg-blue-50/60 p-4 rounded-lg text-sm border border-blue-100 text-foreground">
+                            {evaluationItem.user_ans}
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
-      )}
+
+                    <div className="space-y-3">
+                      <h3 className="text-sm font-medium text-foreground flex items-center">
+                        <Lightbulb className="w-4 h-4 mr-2 text-purple-600" />
+                        Detailed Feedback
+                      </h3>
+                      <div className="bg-muted/30 p-4 rounded-lg border">
+                        {evaluationItem.evaluation ? (
+                          <div className="prose prose-sm max-w-none text-foreground">
+                            {evaluationItem.evaluation
+                              ?.replace(/^•\s*/gm, '')
+                              .trim()
+                              .split('\n')
+                              .filter(para => para.trim())
+                              .map((paragraph, i) => (
+                                <div key={i} className="mb-3 last:mb-0">
+                                  <p className="mb-2">
+                                    {paragraph.trim().replace(/([.!?])([A-Z])/g, '$1 $2')}
+                                  </p>
+                                  {i < evaluationItem.evaluation.split('\n').length - 2 && <div className="h-px bg-border my-3"></div>}
+                                </div>
+                              ))}
+                          </div>
+                        ) : (
+                          <p className="text-muted-foreground italic">No detailed feedback available for this response.</p>
+                        )}
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              );
+            })}
+          </Accordion>
+        )}
+      </div>
     </div>
   );
 };
