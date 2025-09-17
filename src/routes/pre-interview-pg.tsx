@@ -270,7 +270,7 @@ export const PreInterviewPg = () => {
               <Input
                 value={editedInterview.techStack || ''}
                 onChange={(e) => handleInputChange('techStack', e.target.value)}
-                placeholder="Technologies (e.g., React, Node.js, TypeScript)"
+                placeholder="Skills/Technologies (e.g., React, Node.js, TypeScript, Problem Solving)"
                 className="text-muted-foreground border-2 border-gray-300 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded-md px-3 py-2"
               />
             ) : (
@@ -358,7 +358,7 @@ export const PreInterviewPg = () => {
                     )}
                   </div>
                   <div>
-                    <h3 className="font-medium text-muted-foreground">Technologies</h3>
+                    <h3 className="font-medium text-muted-foreground">Skills/Technologies</h3>
                     {isEditing ? (
                       <Input
                         value={editedInterview.techStack || ''}

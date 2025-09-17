@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { TooltipButton } from "./tooltip-button"
 import { MessageSquareMore, Sparkles, SquarePen, Clock, Trash2 } from "lucide-react"
+import { ExpandableDescription } from "./expandable-description"
 
 interface InterviewCardProps {
     interview: Interview
@@ -18,8 +19,22 @@ export const InterviewCard = ({ interview, onMockPage = false, onDelete }: Inter
   
   return (
     <motion.div
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
+      whileHover={{ 
+        scale: 1.008,
+        transition: { 
+          type: "spring",
+          stiffness: 300,
+          damping: 15
+        }
+      }}
+      whileTap={{ 
+        scale: 0.995,
+        transition: { 
+          type: "spring",
+          stiffness: 300,
+          damping: 15
+        }
+      }}
       className="h-full"
     >
       <Card className="h-full flex flex-col rounded-xl overflow-hidden border border-gray-100 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-md hover:shadow-lg transition-all duration-300">
@@ -29,10 +44,11 @@ export const InterviewCard = ({ interview, onMockPage = false, onDelete }: Inter
               {interview?.position}
             </CardTitle>
           </div>
-          <div className="h-[60px] overflow-hidden">
-            <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-3">
-              {interview?.description}
-            </p>
+          <div className="min-h-[60px]">
+            <ExpandableDescription 
+              content={interview?.description || ''} 
+              className="text-gray-600 dark:text-gray-300"
+            />
           </div>
         </CardHeader>
         

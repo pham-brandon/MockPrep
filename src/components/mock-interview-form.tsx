@@ -196,7 +196,7 @@ export const MockInterviewForm = ({initialData} : MockInterviewFormProps) => {
     <div className="w-full space-y-6">
       <BreadCrumbCustom
         breadCrumbPage={breadCrumbPage}
-        breadCrumbItems={[{ label: "Mock Interviews", link: "/practice" }]}
+        breadCrumbItems={[{ label: "Practice", link: "/practice" }]}
       />
       
       <div className="flex items-center justify-between">
@@ -306,16 +306,16 @@ export const MockInterviewForm = ({initialData} : MockInterviewFormProps) => {
             name="techStack"
             render={({ field }) => (
               <FormItem className="space-y-2">
-                <FormLabel>Technologies *</FormLabel>
+                <FormLabel>Skills/Technologies *</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="e.g., React, TypeScript, Node.js"
+                    placeholder="e.g., React, TypeScript, Node.js, Problem Solving"
                     className="h-11"
                     {...field}
                   />
                 </FormControl>
                 <p className="text-sm text-muted-foreground">
-                  List the main technologies relevant to this position
+                  List the main skills and technologies relevant to this position
                 </p>
                 <FormMessage />
               </FormItem>

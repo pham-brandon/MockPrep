@@ -29,7 +29,7 @@ export const EvaluationPg = () => {
   const [interview, setInterview] = useState<Interview | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [evaluations, setEvaluations] = useState<UserAnswer[]>([]);
-  const [activeEvaluate, setActiveEvaluate] = useState("");
+  const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const { userId } = useAuth();
   const navigate = useNavigate();
 
@@ -164,7 +164,12 @@ export const EvaluationPg = () => {
         </div>
 
         {evaluations && (
-          <Accordion type="multiple" className="space-y-4">
+          <Accordion 
+            type="multiple" 
+            className="space-y-4"
+            value={expandedItems}
+            onValueChange={setExpandedItems}
+          >
             {evaluations.map((evaluationItem, index) => {
               const rating = evaluationItem.rating || 0;
               const ratingColor = rating >= 8 ? 'text-green-600' : rating >= 5 ? 'text-yellow-600' : 'text-red-600';
@@ -177,10 +182,9 @@ export const EvaluationPg = () => {
                   className="border rounded-xl overflow-hidden transition-all hover:shadow-md"
                 >
                   <AccordionTrigger
-                    onClick={() => setActiveEvaluate(activeEvaluate === evaluationItem.id ? '' : evaluationItem.id)}
                     className={cn(
                       "px-6 py-4 hover:no-underline hover:bg-muted/30 transition-colors text-left",
-                      activeEvaluate === evaluationItem.id && "bg-muted/20"
+                      expandedItems.includes(evaluationItem.id) && "bg-muted/20"
                     )}
                   >
                     <div className="flex gap-4 w-full">
@@ -191,7 +195,7 @@ export const EvaluationPg = () => {
                         <div className="font-medium">Question {index + 1}</div>
                         <div className={cn(
                           "text-sm text-muted-foreground mt-0.5",
-                          activeEvaluate === evaluationItem.id ? "whitespace-pre-wrap" : "line-clamp-1"
+                          expandedItems.includes(evaluationItem.id) ? "whitespace-pre-wrap" : "line-clamp-1"
                         )}>
                           {evaluationItem.question}
                         </div>
@@ -336,17 +340,14 @@ export const EvaluationPg = () => {
                         {evaluationItem.evaluation ? (
                           <div className="prose prose-sm max-w-none text-foreground">
                             {evaluationItem.evaluation
-                              ?.replace(/^•\s*/gm, '')
+                              .replace(/^[•-]\s*/gm, '')  // Remove bullet points and dashes
                               .trim()
                               .split('\n')
                               .filter(para => para.trim())
                               .map((paragraph, i) => (
-                                <div key={i} className="mb-3 last:mb-0">
-                                  <p className="mb-2">
-                                    {paragraph.trim().replace(/([.!?])([A-Z])/g, '$1 $2')}
-                                  </p>
-                                  {i < evaluationItem.evaluation.split('\n').length - 2 && <div className="h-px bg-border my-3"></div>}
-                                </div>
+                                <p key={i} className="mb-4 last:mb-0">
+                                  {paragraph.trim()}
+                                </p>
                               ))}
                           </div>
                         ) : (
