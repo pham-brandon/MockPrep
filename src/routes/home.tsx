@@ -6,7 +6,6 @@ import { motion } from "framer-motion"
 import { useInView } from 'react-intersection-observer';
 import { Link } from 'react-router-dom';
 import { useAuth } from "@clerk/clerk-react";
-import type { Variants } from 'framer-motion';
 
 const features = [
   {
@@ -60,62 +59,7 @@ const FeatureCard = ({ icon, title, description }: FeatureCardProps) => {
   );
 };
 
-interface AnimatedTextProps {
-  text: string;
-  className?: string;
-}
 
-const AnimatedText = ({ text, className = "" }: AnimatedTextProps) => {
-  const letters = text.split("");
-  
-  const container: Variants = {
-    hidden: { opacity: 0 },
-    visible: (i = 1) => ({
-      opacity: 1,
-      transition: { 
-        staggerChildren: 0.03, 
-        delayChildren: 0.04 * i 
-      },
-    }),
-  };
-
-  const child: Variants = {
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        type: "spring" as const,
-        damping: 12,
-        stiffness: 100,
-      },
-    },
-    hidden: {
-      opacity: 0,
-      y: 20,
-      transition: {
-        type: "spring" as const,
-        damping: 12,
-        stiffness: 100,
-      },
-    },
-  };
-
-  return (
-    <motion.div
-      style={{ display: "flex", overflow: "hidden" }}
-      variants={container}
-      initial="hidden"
-      animate="visible"
-      className={className}
-    >
-      {letters.map((letter: string, index: number) => (
-        <motion.span variants={child} key={index}>
-          {letter === " " ? "\u00A0" : letter}
-        </motion.span>
-      ))}
-    </motion.div>
-  );
-};
 
 const Home = () => {
   const { isSignedIn } = useAuth();
@@ -173,7 +117,7 @@ const Home = () => {
               </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 px-4">
                 <span className="block bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-400">
-                  <AnimatedText text="Ace Your Next Interview" />
+                  Ace Your Next Interview
                 </span>
                 <span className="block text-2xl md:text-3xl text-blue-600 dark:text-blue-400 mt-4">
                   With AI-Powered Mock Interviews
