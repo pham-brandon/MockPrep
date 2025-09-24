@@ -171,26 +171,29 @@ const Home = () => {
                 <Sparkles className="w-4 h-4 mr-2" />
                 AI-Powered Interview Preparation
               </div>
-              
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-6">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 px-4">
                 <span className="block bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-400">
                   <AnimatedText text="Ace Your Next Interview" />
                 </span>
-                <span className="block text-2xl sm:text-3xl text-blue-600 dark:text-blue-400 mt-4">
+                <span className="block text-2xl md:text-3xl text-blue-600 dark:text-blue-400 mt-4">
                   With AI-Powered Mock Interviews
                 </span>
               </h1>
               
-              <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-8">
+              <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-8 px-4">
                 Practice with an AI interviewer, get instant feedback, and improve your interview skills
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Link to={isSignedIn ? "/practice" : "/signin"}>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center px-4">
+                <motion.div 
+                  whileHover={{ scale: 1.05 }} 
+                  whileTap={{ scale: 0.95 }}
+                  className="w-full sm:w-auto"
+                >
+                  <Link to={isSignedIn ? "/practice" : "/signin"} className="block w-full">
                     <Button 
                       size="lg" 
-                      className={`px-8 py-6 text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 ${
+                      className={`w-full sm:w-auto px-6 sm:px-8 py-4 sm:py-6 text-base sm:text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 ${
                         isSignedIn 
                           ? 'bg-yellow-500 hover:bg-yellow-600 text-white' 
                           : 'bg-blue-600 hover:bg-blue-700 text-white'
@@ -219,7 +222,7 @@ const Home = () => {
                       element.scrollIntoView({ behavior: 'smooth' });
                     }
                   }}
-                  className="px-8 py-6 text-lg font-semibold border-2 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30"
+                  className="w-full sm:w-auto px-6 sm:px-8 py-4 sm:py-6 text-base sm:text-lg font-semibold border-2 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30"
                 >
                   How It Works
                 </Button>

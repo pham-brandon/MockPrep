@@ -1,7 +1,6 @@
 import { cn } from "@/lib/utils"
 import { LogoContainer } from "./logo-container"
 import ProfileContainer from "./profile-container"
-import { ToggleContainer } from "./toggle-container"
 
 const Header = () => {
   
@@ -22,9 +21,6 @@ const Header = () => {
           <div className="flex items-center gap-4">
             {/* profile */}
             <ProfileContainer />
-            
-            {/* mobile */}
-            <ToggleContainer />
           </div>
         </div>
       </div>

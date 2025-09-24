@@ -4,7 +4,7 @@ import { Sparkles } from 'lucide-react';
 
 export const LogoContainer = () => {
   return (
-    <Link to={"/"} className="group flex items-center px-8 py-4">
+    <Link to={"/"} className="group flex items-center pl-2 pr-4 sm:px-8 py-4">
       <motion.div 
         className="flex items-center"
         initial={{ opacity: 0, y: -10 }}
